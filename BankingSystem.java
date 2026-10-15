@@ -123,38 +123,68 @@ public class BankingSystem {
         }
     }
 
+    
     public static void depositMoney() {
 
         BankAccount account = findAccount();
 
-        if (account != null) {
-            System.out.print("Enter deposit amount: ");
+        if (account == null) {
+            return;
+        }
+
+        System.out.print("Enter deposit amount: ");
+
+        try {
             double amount = sc.nextDouble();
 
-            account.deposit(amount);
-
-            if (amount > 0) {
-                BankFileHandler.saveAccounts(accounts);
+            if (!Double.isFinite(amount) || amount <= 0) {
+                System.out.println("Enter a valid positive amount!");
+                return;
             }
+
+            account.deposit(amount);
+            BankFileHandler.saveAccounts(accounts);
+
+        } catch (java.util.InputMismatchException e) {
+            System.out.println("Invalid amount! Please enter a number.");
+            sc.nextLine();
         }
     }
 
+
+    
     public static void withdrawMoney() {
 
         BankAccount account = findAccount();
 
-        if (account != null) {
-            System.out.print("Enter withdrawal amount: ");
+        if (account == null) {
+            return;
+        }
+
+        System.out.print("Enter withdrawal amount: ");
+
+        try {
             double amount = sc.nextDouble();
 
-            if (amount > 0 && amount <= account.getBalance()) {
-                account.withdraw(amount);
-                BankFileHandler.saveAccounts(accounts);
-            } else {
-                account.withdraw(amount);
+            if (!Double.isFinite(amount) || amount <= 0) {
+                System.out.println("Enter a valid positive amount!");
+                return;
             }
+
+            if (amount > account.getBalance()) {
+                System.out.println("Insufficient balance!");
+                return;
+            }
+
+            account.withdraw(amount);
+            BankFileHandler.saveAccounts(accounts);
+
+        } catch (java.util.InputMismatchException e) {
+            System.out.println("Invalid amount! Please enter a number.");
+            sc.nextLine();
         }
     }
+
 
     public static BankAccount findAccount() {
 
