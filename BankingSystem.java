@@ -4,15 +4,19 @@ import java.util.Scanner;
 
 public class BankingSystem {
 
-    static ArrayList<BankAccount> accounts = new ArrayList<>();
+    static ArrayList<BankAccount> accounts =
+            BankFileHandler.loadAccounts();
+
     static Scanner sc = new Scanner(System.in);
 
     public static void main(String[] args) {
 
+        System.out.println("Saved accounts loaded: " + accounts.size());
+
         while (true) {
 
             System.out.println("\n================================");
-            System.out.println("       BANKING SYSTEM");
+            System.out.println("         BANKING SYSTEM");
             System.out.println("================================");
             System.out.println("1. Create Account");
             System.out.println("2. View All Accounts");
@@ -77,15 +81,13 @@ public class BankingSystem {
         System.out.print("Enter Initial Balance: ");
         double balance = sc.nextDouble();
 
-        if (balance < 0) {
-            System.out.println("Initial balance cannot be negative!");
+        if (number <= 0 || name.trim().isEmpty() || balance < 0) {
+            System.out.println("Invalid account details!");
             return;
         }
 
-        BankAccount account =
-                new BankAccount(number, name, balance);
-
-        accounts.add(account);
+        accounts.add(new BankAccount(number, name, balance));
+        BankFileHandler.saveAccounts(accounts);
 
         System.out.println("Account created successfully!");
     }
@@ -121,7 +123,12 @@ public class BankingSystem {
         if (account != null) {
             System.out.print("Enter deposit amount: ");
             double amount = sc.nextDouble();
+
             account.deposit(amount);
+
+            if (amount > 0) {
+                BankFileHandler.saveAccounts(accounts);
+            }
         }
     }
 
@@ -132,7 +139,13 @@ public class BankingSystem {
         if (account != null) {
             System.out.print("Enter withdrawal amount: ");
             double amount = sc.nextDouble();
-            account.withdraw(amount);
+
+            if (amount > 0 && amount <= account.getBalance()) {
+                account.withdraw(amount);
+                BankFileHandler.saveAccounts(accounts);
+            } else {
+                account.withdraw(amount);
+            }
         }
     }
 
